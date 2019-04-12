@@ -62,7 +62,7 @@ const mapStateToProps = (state) => {
 
     const { currentSubreddit, subreddits, postsBySubreddit, errorMessage } = state;
     const { posts, isFetching, lastFetch } = postsBySubreddit[currentSubreddit] || { posts:[], isFetching: true, lastFetch: 0};
-    console.log(state);
+
 
 
     return(

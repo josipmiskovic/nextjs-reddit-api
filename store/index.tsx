@@ -61,11 +61,11 @@ export const sendError = (message: string) =>  (
 
 export const isFetchingNeeded = (state, subredditName: string) => {
 
-  console.log(state);
-  if(!state.subreddits) return true;
+  const selectedSubreddit =  state.postsBySubreddit[subredditName];
+  console.log(selectedSubreddit);
 
-  const selectedSubreddit =  state.subreddits[subredditName];
-  
+  if(!selectedSubreddit)
+    return true;
 
 
   if(selectedSubreddit.isFetching)
