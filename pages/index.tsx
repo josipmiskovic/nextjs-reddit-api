@@ -11,6 +11,11 @@ class Index extends React.Component {
     this.props.performSearch(nextSubreddit, false);
   }
 
+  handleButton = (e)  => {
+    const { currentSubreddit } = this.props;
+    this.props.performSearch(currentSubreddit, true);
+  }
+
 
   componentDidMount = () => {
     const { performSearch, currentSubreddit } = this.props;
@@ -31,6 +36,8 @@ class Index extends React.Component {
           onChange={this.handleChange}
           options={['reactjs', 'frontend']}
         />
+
+        <button onClick={e => this.handleButton(e)}> Force update </button>
 
         { errorMessage && 
           <h3>{ errorMessage }</h3>

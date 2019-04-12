@@ -41,6 +41,7 @@ export const changeSubreddit = (currentSubreddit: string) => ({
 
 export const startFetching = (subreddit: string) => ({
   type: actionTypes.START_FETCHING,
+  isFetching: true,
   subreddit,
   error: ""
 })
@@ -59,7 +60,7 @@ export const sendError = (message: string) =>  (
   message
 })
 
-export const isFetchingNeeded = (state, subredditName: string) => {
+export const isFetchingNeeded = (state, subredditName: string, force: boolean) => {
 
   const selectedSubreddit =  state.postsBySubreddit[subredditName];
   console.log(selectedSubreddit);
@@ -71,7 +72,7 @@ export const isFetchingNeeded = (state, subredditName: string) => {
   if(selectedSubreddit.isFetching)
     return false;
 
-  if(!selectedSubreddit)
+  if(!selectedSubreddit || force)
     return true;
   else
     return false;
@@ -97,7 +98,7 @@ export const fetchPosts = (subreddit: string) => async dispatch => {
 
 
 export const performSearch = (subreddit: string, force: boolean) => (dispatch, getState) => {
-  if(isFetchingNeeded(getState(), subreddit) || force){
+  if(isFetchingNeeded(getState(), subreddit, force)){
     return dispatch(fetchPosts(subreddit));
   }
 }
