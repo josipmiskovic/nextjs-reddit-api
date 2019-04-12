@@ -1,0 +1,9 @@
+node_modules/
+.next/
+yarn-error.log
+coverage/
+.nyc_output/
+.js.bk
+.history
+*.pfx
+.vs/
