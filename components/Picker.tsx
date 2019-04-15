@@ -1,6 +1,13 @@
 import React, { Component } from 'react'
 
-export default class Picker extends Component {
+
+export interface IPicker {
+    value: string;
+    onChange: (nextSubreddit: string) => void;
+    options: string[];
+    
+}
+export default class Picker extends Component<IPicker> {
   render() {
     const { value, onChange, options } = this.props
 

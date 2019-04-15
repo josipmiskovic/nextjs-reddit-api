@@ -2,16 +2,36 @@ import React from 'react';
 import {connect} from 'react-redux'
 import { Action, Dispatch } from 'redux';
 import Picker from '../components/Picker';
+import Post, { PostData } from '../components/Post';
 import { changeSubreddit, performSearch } from '../store';
 
-class Index extends React.Component {
 
-  handleChange = (nextSubreddit)  => {
+interface Props {
+  errorMessage: string;
+  posts: PostData[];
+  lastFetch: number;
+  isFetching: boolean;
+  currentSubreddit: string;
+  performSearch: (subreddit: string, force: boolean) => Dispatch;
+  changeSubreddit: (subreddit: string) => Dispatch;
+}
+
+interface State {
+  currentSubreddit: string;
+  postsBySubreddit: { [key: string]: { posts: PostData[], isFetching: boolean, lastFetch: number } } ;
+  errorMessage: string;
+}
+
+
+class Index extends React.Component<Props, State> {
+
+  handleChange = (nextSubreddit: string)  => {
     this.props.changeSubreddit(nextSubreddit);
     this.props.performSearch(nextSubreddit, false);
   }
 
-  handleButton = (e)  => {
+  handleButton = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>): void => {
+    e.preventDefault();
     const { currentSubreddit } = this.props;
     this.props.performSearch(currentSubreddit, true);
   }
@@ -21,9 +41,6 @@ class Index extends React.Component {
     const { performSearch, currentSubreddit } = this.props;
     performSearch(currentSubreddit, false);
   }
-
-
-
   render = () => {
 
 
@@ -39,12 +56,14 @@ class Index extends React.Component {
 
         <button onClick={e => this.handleButton(e)}> Force update </button>
 
+        <br/><br/>
+
         { errorMessage && 
           <h3>{ errorMessage }</h3>
         }
 
         { isFetching && 
-          <span>Loading...</span>
+          <h3>Loading...</h3>
         }
 
         { !isFetching && 
@@ -54,10 +73,9 @@ class Index extends React.Component {
               <span> Last fetch: {  lastFetch.toString() } </span>
             }
 
-            <p>{ posts.map((post, i) => 
-                  post.title
-              ) }
-            </p>
+            { posts.map((post) => <Post data={ post }/> ) 
+            }
+            
           </div>
         }
       </div>
@@ -65,16 +83,15 @@ class Index extends React.Component {
   };
 }
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: State) => {
 
-    const { currentSubreddit, subreddits, postsBySubreddit, errorMessage } = state;
+    const { currentSubreddit, postsBySubreddit, errorMessage } = state;
     const { posts, isFetching, lastFetch } = postsBySubreddit[currentSubreddit] || { posts:[], isFetching: true, lastFetch: 0};
 
 
 
     return(
       { 
-        subreddits,
         currentSubreddit,
         posts,
         isFetching,

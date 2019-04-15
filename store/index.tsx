@@ -1,6 +1,8 @@
-import { createStore, applyMiddleware, combineReducers} from 'redux'
+import { createStore, applyMiddleware, combineReducers, Action} from 'redux'
 import thunk from 'redux-thunk'
 import { composeWithDevTools } from 'redux-devtools-extension';
+import { PostData } from 'components/Post';
+import { ThunkAction } from 'redux-thunk';
 
 
 export const actionTypes = {
@@ -13,21 +15,12 @@ export const actionTypes = {
 
 }
 
-const initState = {
-    currentSubreddit: "reactjs",
-    subreddits: {
-      "reactjs":
-      {
-        posts: [
-          {
-            title: "Lito ide",
-            url: "https://google.com"
-          }
-        ],
-        lastFetch:new Date(),
-        isFetching: false,
-      }
-    },
+interface IState {
+  currentSubreddit: string
+}
+
+const initState: IState = {
+    currentSubreddit: "reactjs"
 }
 
 
@@ -60,25 +53,37 @@ export const sendError = (message: string) =>  (
   message
 })
 
-export const isFetchingNeeded = (state, subredditName: string, force: boolean) => {
+export const isFetchingNeeded = (state, subredditName: string, force: boolean): boolean => {
 
   const selectedSubreddit =  state.postsBySubreddit[subredditName];
-  console.log(selectedSubreddit);
 
   if(!selectedSubreddit)
     return true;
-
-
   if(selectedSubreddit.isFetching)
     return false;
 
-  if(!selectedSubreddit || force)
+  if(force)
     return true;
-  else
-    return false;
+  
+  return false;
 }
 
-export const fetchPosts = (subreddit: string) => async dispatch => {
+export interface ReceivedPostsAction {
+  type: string;
+  subreddit: string;
+  isFetching: boolean;
+  posts: PostData[];
+  lastFetch: Date;
+}
+
+
+export interface SendErorAction {
+  type: string;
+  message: string;
+}
+
+
+export const fetchPosts = (subreddit: string): ThunkAction<Promise<ReceivedPostsAction | SendErorAction>, void, void, Action<any>>  => async dispatch => {
   dispatch(startFetching(subreddit));
   try {
       const response = await fetch(`https://www.reddit.com/r/${subreddit}.json`);
@@ -115,11 +120,12 @@ export const reducer = (state = initState.currentSubreddit, action) => {
   }
 }
 
-export const postReducer = ( state = { isFetching: true, posts: [], lastFetch: 0 }, action) => {
+export const postReducer = ( state = { isFetching: true, posts: [], lastFetch: 0 }, action: ReceivedPostsAction & SendErorAction) => {
   switch (action.type) {
     default: 
       return state
     case actionTypes.SEND_ERROR:
+    case actionTypes.START_FETCHING: 
     case actionTypes.RECEIVE_POSTS: 
       return {
         ...state,
@@ -159,5 +165,5 @@ const middleware = [ thunk ]
 const rootReducer = combineReducers({currentSubreddit: reducer, postsBySubreddit, errorMessage});
 
 export function initializeStore (initialState = initState) {
-  return createStore(rootReducer, initialState, composeWithDevTools(applyMiddleware(...middleware)))
+  return createStore(rootReducer, initialState as any, composeWithDevTools(applyMiddleware(...middleware)))
 }

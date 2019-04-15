@@ -1,7 +1,6 @@
 import App, { Container, NextAppContext } from 'next/app';
 import React from 'react';
 import { Store } from 'redux';
-import Router from 'next/router';
 import { Provider } from 'react-redux';
 import withReduxStore from '../lib/with-redux-store';
 
